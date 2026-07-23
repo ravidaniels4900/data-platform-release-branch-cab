@@ -20,7 +20,7 @@ SELECT
     Hierarchy_Level,
     TIN,
     NPI_Number,
-   -- NPI_Type,
+    NPI_Type,
     Status,
     Effective_Date,
     Termination_Date,
