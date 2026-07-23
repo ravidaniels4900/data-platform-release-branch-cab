@@ -1,5 +1,5 @@
 # Option B — Release Branch + Cherry‑Pick
-This branch demonstrates the second production promotion prototype for the `data-platform-incremental-cab-gated` reference implementation.
+This branch demonstrates the second production promotion prototype for the `data-platform-release-branch-cab` reference implementation.
 
 ## Rule
 `main` takes every merged change.  
