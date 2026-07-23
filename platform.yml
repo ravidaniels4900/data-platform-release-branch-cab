@@ -1,0 +1,39 @@
+project:
+  name: data-platform-incremental-cab-gated
+
+  variables:
+    source_database: RAW
+    silver_database: SILVER
+    gold_database: GOLD
+    warehouse: COMPUTE_WH
+    role: ACCOUNTADMIN
+    environment: dev
+
+  targets:
+    dev:
+      default: true
+      variables:
+        environment: dev
+        source_database: RAW
+        silver_database: SILVER
+        gold_database: GOLD
+        warehouse: COMPUTE_WH
+        role: ACCOUNTADMIN
+
+    qa:
+      variables:
+        environment: qa
+        source_database: RAW
+        silver_database: SILVER_QA
+        gold_database: GOLD_QA
+        warehouse: COMPUTE_WH
+        role: ACCOUNTADMIN
+
+    prod:
+      variables:
+        environment: prod
+        source_database: RAW
+        silver_database: SILVER_PROD
+        gold_database: GOLD_PROD
+        warehouse: COMPUTE_WH
+        role: ACCOUNTADMIN

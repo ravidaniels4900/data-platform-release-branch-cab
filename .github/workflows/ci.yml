@@ -1,0 +1,65 @@
+# ============================================================
+# Data Platform: Release Branch  CAB-Gated
+# Workflow: CI Pipeline
+# Purpose: Validate code quality before merge
+# ============================================================
+
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci_checks:
+    name: Run CI Checks
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ── 1. Checkout Code ──────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2. Required Files Check ───────────────────────────
+      - name: Check required files exist
+        run: |
+          echo "Checking required files..."
+          for file in README.md .gitignore .sqlfluff platform.yml; do
+            if [ ! -f "$file" ]; then
+              echo " Missing required file: $file"
+              exit 1
+            else
+              echo " Found: $file"
+            fi
+          done
+
+      # ── 3. SQL Files Check ────────────────────────────────
+      - name: Check SQL files exist in src/
+        run: |
+          echo "Checking for SQL files in src/..."
+          sql_count=$(find src/ -name "*.sql" | wc -l)
+
+          if [ "$sql_count" -eq 0 ]; then
+            echo "No SQL files found in src/"
+            exit 1
+          else
+            echo " Found $sql_count SQL file(s) in src/"
+          fi
+
+      # ── 4. No Hardcoded Secrets Check ─────────────────────
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Scanning for hardcoded secrets..."
+          if grep -r -i "password\s*=\s*['\"][^&]" src/ --include="*.sql"; then
+            echo " Hardcoded password found in SQL files"
+            exit 1
+          else
+            echo " No hardcoded secrets found"
+          fi
+
+      # ── 5. SQL Linting ────────────────────────────────────
+      - name: SQL Lint with SQLFluff
+        run: |
+          pip install sqlfluff
+          sqlfluff lint src/ --dialect snowflake || true

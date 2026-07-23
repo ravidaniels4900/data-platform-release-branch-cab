@@ -1,0 +1,129 @@
+# ============================================================
+# Data Platform: Release Branch CAB
+# Workflow: CD Pipeline
+# Trigger:
+#   - Push to main (QA auto)
+#   - Push to release/** (PROD, gated by approval)
+# Purpose: Deploy Silver Dynamic Table + Gold View
+# Pattern: Option B — release branch + cherry-pick
+# ============================================================
+
+name: CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+
+jobs:
+
+  # ── QA: Auto deploy on merge to main ────────────────────
+  deploy-qa:
+    name: Deploy to QA
+    runs-on: ubuntu-latest
+    environment: QA
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Snowflake CLI
+        run: pip install snowflake-cli-labs
+
+      - name: Configure Snowflake CLI
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PAT_TOKEN: ${{ secrets.SNOWFLAKE_PAT_TOKEN }}
+        run: |
+          mkdir -p ~/.snowflake
+          cat > ~/.snowflake/config.toml << EOF
+          [connections.default]
+          account = "$SNOWFLAKE_ACCOUNT"
+          user = "$SNOWFLAKE_USER"
+          authenticator = "programmatic_access_token"
+          token = "$SNOWFLAKE_PAT_TOKEN"
+          warehouse = "COMPUTE_WH"
+          role = "ACCOUNTADMIN"
+          EOF
+          chmod 0600 ~/.snowflake/config.toml
+
+      - name: Deploy Silver Dynamic Table to QA
+        env:
+          SOURCE_DATABASE: ${{ vars.SOURCE_DATABASE }}
+          SILVER_DATABASE: ${{ vars.SILVER_QA_DATABASE }}
+        run: |
+          snow sql -f src/silver/organization_silver_dt.sql \
+            --variable "source_database=$SOURCE_DATABASE" \
+            --variable "silver_database=$SILVER_DATABASE"
+
+      - name: Deploy Gold View to QA
+        env:
+          SILVER_DATABASE: ${{ vars.SILVER_QA_DATABASE }}
+          GOLD_DATABASE: ${{ vars.GOLD_QA_DATABASE }}
+        run: |
+          snow sql -f src/gold/organization_gold_vw.sql \
+            --variable "silver_database=$SILVER_DATABASE" \
+            --variable "gold_database=$GOLD_DATABASE"
+
+  # ── PROD: Auto-triggered on push to release/**, gated by approval ──
+  deploy-prod:
+    name: Deploy to PROD
+    runs-on: ubuntu-latest
+    environment: PROD
+    if: startsWith(github.ref, 'refs/heads/release/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Snowflake CLI
+        run: pip install snowflake-cli-labs
+
+      - name: Configure Snowflake CLI
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PAT_TOKEN: ${{ secrets.SNOWFLAKE_PAT_TOKEN }}
+        run: |
+          mkdir -p ~/.snowflake
+          cat > ~/.snowflake/config.toml << EOF
+          [connections.default]
+          account = "$SNOWFLAKE_ACCOUNT"
+          user = "$SNOWFLAKE_USER"
+          authenticator = "programmatic_access_token"
+          token = "$SNOWFLAKE_PAT_TOKEN"
+          warehouse = "COMPUTE_WH"
+          role = "ACCOUNTADMIN"
+          EOF
+          chmod 0600 ~/.snowflake/config.toml
+
+      - name: Deploy Silver Dynamic Table to PROD
+        env:
+          SOURCE_DATABASE: ${{ vars.SOURCE_DATABASE }}
+          SILVER_DATABASE: ${{ vars.SILVER_PROD_DATABASE }}
+        run: |
+          snow sql -f src/silver/organization_silver_dt.sql \
+            --variable "source_database=$SOURCE_DATABASE" \
+            --variable "silver_database=$SILVER_DATABASE"
+
+      - name: Deploy Gold View to PROD
+        env:
+          SILVER_DATABASE: ${{ vars.SILVER_PROD_DATABASE }}
+          GOLD_DATABASE: ${{ vars.GOLD_PROD_DATABASE }}
+        run: |
+          snow sql -f src/gold/organization_gold_vw.sql \
+            --variable "silver_database=$SILVER_DATABASE" \
+            --variable "gold_database=$GOLD_DATABASE"
