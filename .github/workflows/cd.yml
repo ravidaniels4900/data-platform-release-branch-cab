@@ -1,5 +1,5 @@
 # ============================================================
-# Data Platform: Release Branch CAB
+# Data Platform: Release Branch + Cherry Pick after CAB approval
 # Workflow: CD Pipeline
 # Trigger:
 #   - Push to main (QA auto)
