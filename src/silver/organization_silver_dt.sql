@@ -1,5 +1,5 @@
 -- ============================================================
--- Data Platform: Incremental CAB-Gated
+-- Data Platform: Release Branch CAB-Gated
 -- Object: ORGANIZATION_DT (Silver Dynamic Table)
 -- Target: <%silver_database %>.FACETS.ORGANIZATION_DT
 -- Purpose: Incremental transformation of raw provider/org data

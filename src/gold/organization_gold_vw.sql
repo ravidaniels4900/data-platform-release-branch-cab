@@ -1,5 +1,5 @@
 -- ============================================================
--- Data Platform: Incremental CAB-Gated
+-- Data Platform: Release Branch CAB-Gated
 -- Object: ORGANIZATION_VW (Gold View)
 -- Target: &gold_database.DIMENSIONS.ORGANIZATION_VW
 -- Purpose: Always reflects latest Silver Dynamic Table data
