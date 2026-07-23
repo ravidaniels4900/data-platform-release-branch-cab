@@ -1,5 +1,5 @@
 project:
-  name: data-platform-incremental-cab-gated
+  name: data-platform-release-branch-cab
 
   variables:
     source_database: RAW
