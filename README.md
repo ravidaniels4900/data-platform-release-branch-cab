@@ -1,4 +1,4 @@
-# Option B — Release Branch + Cherry‑Pick
+# Option B — Release Branch + Cherry‑Pick Test
 This branch demonstrates the second production promotion prototype for the `data-platform-release-branch-cab` reference implementation.
 
 ## Rule
