@@ -16,7 +16,7 @@ SELECT
     Org_Type,
     Org_Subtype_Code,
     Org_Subtype_Desc,
-    Hierarchy_Path, --Added this column as part of CHG0015
+    --Hierarchy_Path, --commented this column as part of CHG0015
     Hierarchy_Level,
     TIN,
     NPI_Number,
