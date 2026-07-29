@@ -20,3 +20,5 @@ A curated `release/*` branch takes only the CAB‑approved ones.
 
 `main` and QA move continuously; the release branch is what's actually CAB‑scoped.
 
+## Added this line as part of CHG0016
+
